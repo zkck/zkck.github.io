@@ -1,0 +1,9 @@
+baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = "zak's silly thoughts"
+
+theme = 'cactus'
+
+[params]
+mainSection = "blog"
+mainSectionTitle = "blog"
