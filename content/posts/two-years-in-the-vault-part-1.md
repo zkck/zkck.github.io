@@ -83,10 +83,10 @@ combination of a path and capabilities on that path. Efficient management of
 policies is important in order to keep your Vault lean and scalable.
 
 Let's consider a very basic Vault, which has a
-[KVv2 engine](https://google.com), `secrets/`, used to store secret recipes
-under the `recipes/` path. The following policy could be the "recipe
-administrator" policy, allowing the head chef to browse the entire secrets
-engine and update any of the secret recipes:
+[KVv2 engine](https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v2),
+`secrets/`, used to store secret recipes under the `recipes/` path. The
+following policy could be the "recipe administrator" policy, allowing the head
+chef to browse the entire secrets engine and update any of the secret recipes:
 
 ```bash
 vault policy write head-chef - <<EOF
