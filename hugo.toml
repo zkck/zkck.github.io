@@ -1,96 +1,102 @@
-baseURL = 'https://zkck.github.io/'
-languageCode = 'en-us'
-title = "zak's hacks"
-
-theme = 'risotto'
-
-sectionPagesMenu = 'main'
-
+baseurl = "/"
+languageCode = "en-us"
+# Add it only if you keep the theme in the `themes` directory.
+# Remove it if you use the theme as a remote Hugo Module.
+theme = "terminal"
+paginate = 5
 
 [params]
-noindex = false
+  # dir name of your main content (default is `content/posts`).
+  # the list of set content will show up on your index page (baseurl).
+  contentTypeName = "posts"
 
-[params.theme]
-palette = "base16-dark"
+  # if you set this to 0, only submenu trigger will be visible
+  showMenuItems = 2
 
-# Sidebar: about/bio
-[params.about]
-title = "zkck"
-description = "My (Zak Cook) dev blog, for everything from security, to programming, to a superior terminal setup."
-# unicode/emoji logo:
-logo = "🚀"
-# or use an image:
-#logo_image = "images/rice.svg"
+  # show selector to switch language
+  showLanguageSelector = false
 
-# Sidebar: social links
-# Available icon sets:
-# * FontAwesome 6 <https://fontawesome.com/> ('fa-brands', 'fa-normal', or 'fa-solid' for brands)
-# * Academicons <https://jpswalsh.github.io/academicons> ('ai ai-')
+  # set theme to full screen width
+  fullWidthTheme = false
 
-[[params.socialLinks]]
-icon = "fa-brands fa-github"
-title = "GitHub"
-url = "https://github.com/zkck"
+  # center theme with default width
+  centerTheme = false
 
-[[params.socialLinks]]
-icon = "fa-solid fa-envelope"
-title = "Email"
-url = "mailto:zakcook4@gmail.com"
+  # if your resource directory contains an image called `cover.(jpg|png|webp)`,
+  # then the file will be used as a cover automatically.
+  # With this option you don't have to put the `cover` param in a front-matter.
+  autoCover = true
 
-[[params.socialLinks]]
-icon = "fa-brands fa-linkedin"
-title = "LinkedIn"
-url = "https://linkedin.com/in/zak-cook"
+  # set post to show the last updated
+  # If you use git, you can set `enableGitInfo` to `true` and then post will automatically get the last updated
+  showLastUpdated = false
 
-[menu]
+  # Provide a string as a prefix for the last update date. By default, it looks like this: 2020-xx-xx [Updated: 2020-xx-xx] :: Author
+  # updatedDatePrefix = "Updated"
 
-  [[menu.main]]
-    identifier = "about"
-    name = "About"
-    url = "/about/"
-    weight = 10
+  # whether to show a page's estimated reading time
+  # readingTime = false # default
 
-[taxonomies]
-category = "categories"
-tag = "tags"
-series = "series"
+  # whether to show a table of contents
+  # can be overridden in a page's front-matter
+  # Toc = false # default
 
-# For hugo >= 0.60.0, enable inline HTML
-[markup.goldmark.renderer]
-unsafe = true
+  # set title for the table of contents
+  # can be overridden in a page's front-matter
+  # TocTitle = "Table of Contents" # default
 
-[markup]
+  # Set date/time format for posts
+  # This will impact the date/time displayed on
+  # index.html, the posts list page, and on posts themselves
+  # This value can also be configured per-post on front matter
+  # If you have any issues with the timezone rendering differently
+  # than you expected, please ensure your timezone is correctly set
+  # on your server.
+  # This value can be customized according to Hugo documentation:
+  # https://gohugo.io/functions/time/format/
+  # Default value (no changes needed):
+  # dateFormat = "2006-01-02"
+  # Example format, with date, time, and timezone abbreviation:
+  # dateFormat = "2006-01-02 3:04:06 PM MST"
 
-  # Table of contents
-  # Add toc = true to content front matter to enable
-  [markup.tableOfContents]
-    startLevel = 2
-    endLevel   = 3
-    ordered    = true
 
-[privacy]
+[params.twitter]
+  # set Twitter handles for Twitter cards
+  # see https://developer.twitter.com/en/docs/tweets/optimize-with-cards/guides/getting-started#card-and-content-attribution
+  # do not include @
+  creator = ""
+  site = ""
 
-  [privacy.vimeo]
-    disabled = false
-    simple = true
+[languages]
+  [languages.en]
+    languageName = "English"
+    title = "Terminal"
 
-  [privacy.twitter]
-    disabled = false
-    enableDNT = true
-    simple = true
+    [languages.en.params]
+      subtitle = "A simple, retro theme for Hugo"
+      owner = ""
+      keywords = ""
+      copyright = ""
+      menuMore = "Show more"
+      readMore = "Read more"
+      readOtherPosts = "Read other posts"
+      newerPosts = "Newer posts"
+      olderPosts = "Older posts"
+      missingContentMessage = "Page not found..."
+      missingBackButtonLabel = "Back to home page"
+      minuteReadingTime = "min read"
+      words = "words"
 
-  [privacy.instagram]
-    disabled = false
-    simple = true
+      [languages.en.params.logo]
+        logoText = "Terminal"
+        logoHomeLink = "/"
 
-  [privacy.youtube]
-    disabled = false
-    privacyEnhanced = true
-
-[services]
-
-  [services.instagram]
-    disableInlineCSS = true
-
-  [services.twitter]
-    disableInlineCSS = true
+      [languages.en.menu]
+        [[languages.en.menu.main]]
+          identifier = "about"
+          name = "About"
+          url = "/about"
+        [[languages.en.menu.main]]
+          identifier = "showcase"
+          name = "Showcase"
+          url = "/showcase"
