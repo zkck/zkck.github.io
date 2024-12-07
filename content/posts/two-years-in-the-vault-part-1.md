@@ -5,10 +5,13 @@ draft = false
 toc = true
 +++
 
-I work as an IT consultant. With my firm I've been on a client project for over
-two years now where the use of HashiCorp Vault was prevalent, which has now
-resulted in a thorough and battle-tested configuration of our Vault which we can
-be proud of.
+I work as an IT consultant. Over the past two years, we've been working with our
+client on a
+[platform engineering](https://en.wikipedia.org/wiki/Platform_engineering)
+project, where the use of [HashiCorp Vault](https://www.vaultproject.io/) was
+prevalent. Our Vault has enabled us to manage hundreds of secrets, increasing
+the security of our developer platform, and has resulted in a thorough and
+battle-tested configuration of our Vault which we can be proud of.
 
 However, over the past two years, there have been quite a few learning moments.
 Vault is a great product with lots of flexibility, but this opens up a lot of
@@ -17,9 +20,9 @@ reconfigurations of our Vault. This post aims to share learnings that I wish we
 had known from the very beginning, in the form into digestible tips.
 
 These tips are for everyone that needs to work with HashiCorp Vault, whether it
-be as a user, or as an admin (you may still learn something). If you aren't a
-user and are just planning to use it, make sure to bookmark this post, it may
-come in handy in the future.
+be as a developer, or as an administrator (you may still learn something). If
+you aren't a user, maybe simply bookmark this post, it may come in handy in the
+future.
 
 TL;DR:
 
