@@ -21,8 +21,8 @@ had known from the very beginning, in the form into digestible tips.
 
 These tips are for everyone that needs to work with HashiCorp Vault, whether it
 be as a developer, or as an administrator (you may still learn something). If
-you aren't a user, maybe simply bookmark this post, it may come in handy in the
-future.
+you don't use Vault, maybe simply bookmark this post, it may come in handy in
+the future.
 
 TL;DR:
 
@@ -39,9 +39,10 @@ This is a two-part series, we'll cover the first four tips here, and the
 remaining four in an upcoming post. Stay tuned.
 
 > **Glossary:** I overuse the words _component_ and _system_ a lot. This could
-> refer to microservices, short running jobs, monolith servers, which run all
-> together, for some sort of workload. If you're running on Kubernetes, think of
-> a _component_ as a Deployment, and a _system_ as the Kubernetes cluster.
+> refer to microservices, short running jobs, monolith servers, which all run
+> together, to form some sort of workload. If you're running on Kubernetes,
+> think of a _component_ as a Deployment, and a _system_ as the Kubernetes
+> cluster.
 
 ## Tip 1: Configure with an infrastructure-as-code (IaC) tool
 
