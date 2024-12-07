@@ -54,7 +54,7 @@ Potential solutions for IaC are:
 
 For configuring your Vault, I would generally recommend going for
 Terraform/OpenTofu, which takes the declarative approach as opposed to Pulumi.
-Pulumi is a good solution where you have lots of dependencies in a complex
+Pulumi is a good solution when you have lots of dependencies in a complex
 system, which need to be handled programmatically.
 
 We started off on our Vault journey by simply documenting how we configured our
@@ -140,7 +140,7 @@ It is now much more transparent what permissions are associated with this role.
 In addition, breaking down the policy made parts of the policy reusable, as we
 could now do something like the following, reusing the `browse-secrets` policy:
 
-```sh
+```bash
 vault policy write manage-greek-recipes - <<EOF
 # manage greek recipes
 path "secrets/data/recipes/greek/*" {
