@@ -6,7 +6,7 @@ toc = true
 +++
 
 I work as an IT consultant. With my firm I've been on a client project for over
-two years now where the use of HashiCorp Vault was prevalent, which has now
+2 years now where the use of HashiCorp Vault was prevalent, which has now
 resulted in a thorough and battle-tested configuration of our Vault which we can
 be proud of.
 
@@ -16,14 +16,14 @@ possibilities for misconfiguration or misuse. For us, that mean a few tedious
 reconfigurations of our Vault. This post aims to share our learnings that we
 wish we had known from the very beginning, in the form into digestible tips.
 
-This blogpost is for everyone that needs to work with HashiCorp Vault, whether
-it be as a user, or as an admin (you may still learn something). If you aren't a
+These tips are for everyone that needs to work with HashiCorp Vault, whether it
+be as a user, or as an admin (you may still learn something). If you aren't a
 user and are just planning to use it, make sure to bookmark this post, it may
 come in handy in the future.
 
 TL;DR:
 
-1. Configure with an infrastructure-as-code (IaC)
+1. Configure with an infrastructure-as-code (IaC) tool
 1. Policies describe permissions
 1. Format elsewhere
 1. Careful with the `sys/policies` permission
@@ -35,12 +35,12 @@ TL;DR:
 This is a two-part series, we'll cover the first four tips here, and the last
 four next month. Stay tuned.
 
-> **Glossary:** I overuse the words _component_ and _system_ a lot. This refers
-> to microservices, short running jobs, monolith servers, which run all
+> **Glossary:** I overuse the words _component_ and _system_ a lot. This could
+> refer to microservices, short running jobs, monolith servers, which run all
 > together, for some sort of workload. If you're running on Kubernetes, think of
 > a _component_ as a Deployment, and a _system_ as the Kubernetes cluster.
 
-## Tip 1: Configure with infrastructure-as-code (IaC) solutions
+## Tip 1: Configure with an infrastructure-as-code (IaC) tool
 
 When first starting to integrate a Vault into a large system, one naturally does
 explorative work locally with the Vault CLI. This is all good, but concretizing
@@ -251,3 +251,91 @@ application itself, as the code now uses the Vault API in order to retrieve the
 secret. Some applications may want to be agnostic on the type of software
 storing the credentials, in which case a templating solution would be more
 suitable.
+
+## Tip 4: Careful with create permissions on sys/policy
+
+Vaults used in a complex system sometimes need to support new users being added
+to the Vault: for example adding a new role/user which has access to a
+subdirectory of a KVv2 secrets engine. To automate this, companies may resort to
+building some management component which automates the creation of a role/user
+and policies attached to it.
+
+The
+[`sys/policy`](https://developer.hashicorp.com/vault/api-docs/system/policy#create-update-policy)
+(or
+[`sys/policies/acl`](https://developer.hashicorp.com/vault/api-docs/system/policies#create-update-acl-policy))
+path is used to grant permissions on managing policies in Vault, and is
+necessary to create policies on the fly. We will see in this chapter how
+granting `create` permissions on `sys/policy` can lead to security risks, and
+provide some examples on how to mitigate these risks.
+
+As an example, let's consider our Vault which is meant to manage recipes. We may
+have an intranet page which allows for sous-chefs to manage their own recipe
+directory under the `recipes/` folder. This would involve sending a request to a
+component, let's call it the `sous-chef-manager`, that would need to run
+following commands on the Vault:
+
+```
+# create policy for employee
+vault policy write "manage-recipes-$EMPLOYEE_NAME" - <<EOF
+path "secrets/data/recipes/$EMPLOYEE_NAME/*" {
+  capabilities = ["create", "read", "update", "delete"]
+}
+EOF
+# create role for employee with attached policy
+vault write auth/approle/role/$EMPLOYEE_NAME token_policies="manage-recipes-$EMPLOYEE_NAME"
+```
+
+This would require the `sous-chef-manager` component to have the permissions to
+create both roles and policies for our sous-chefs. Let's setup a role and policy
+for this, which would allow the component to execute the above commands:
+
+```hcl
+# create "create-policies", "create-roles" policies
+vault policy write "create-policies" - <<EOF
+path "sys/policy/+" {
+  capabilities = ["create", "update"]
+}
+EOF
+vault policy write "create-roles" - <<EOF
+path "auth/approle/role/+" {
+  capabilities = ["create", "update"]
+}
+EOF
+# attach policies to role
+vault write auth/approle/role/sous-chef-manager token_policies=create-policies,create-roles
+```
+
+The above policies are dangerous to provide, especially in conjunction.
+
+Imagine our `sous-chef-manager` component was insecure, an attacker can SSH
+inside it, and read the role ID and secret ID on disk. The attacker then uses
+these credentials to log in to Vault, and can now **create new policies, with
+any permissions, and assign those permissions to the `sous-chef-manager` which
+they have control over**:
+
+```
+# create malicious "read-all-recipes" policy
+path "secrets/data/*" {
+  capabilities = ["read"]
+}
+# update the policies attached to the role
+vault write auth/approle/role/sous-chef-manager token_policies=create-policies,create-roles,read-all-recipes
+```
+
+Which means that technically, this component can be considered as **admin** on
+the Vault, as it can create policies for absolutely anything and assign it to
+itself. To mitigate this, there are the following solutions:
+
+1. Avoid granting permissions on `sys/policies` altogether and consider **using
+   templated policies**. This is often the cleanest solution, and has a big
+   advantage of reducing the amount of configuration.
+1. Grant permissions on a **subfolder of sys/policies**. This subfolder must be
+   disjoint from the policies granted to `sous-chef-manager`, and
+   `sous-chef-manager` should not be able to `update` its own role.
+1. Grant only `create` permissions on anything under `sys/policies`, and
+   `sous-chef-manager` should not be able to `update` its own role.
+
+There may be more mitigation options, but the point of this chapter is to
+consider the event of a breach and be aware of the **effective permissions**
+that you may be giving to your system components.
