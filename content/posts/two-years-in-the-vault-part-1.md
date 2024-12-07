@@ -10,11 +10,11 @@ I work as an IT consultant. With my firm I've been on a client project for over
 resulted in a thorough and battle-tested configuration of our Vault which we can
 be proud of.
 
-However, over the past 2 years, we've had quite a few learning moments. Vault is
-a great product with lots of flexibility, but this opens up a lot of
-possibilities for misconfiguration or misuse. For us, that mean a few tedious
-reconfigurations of our Vault. This post aims to share our learnings that we
-wish we had known from the very beginning, in the form into digestible tips.
+However, over the past 2 years, there have been quite a few learning moments.
+Vault is a great product with lots of flexibility, but this opens up a lot of
+possibilities for misconfiguration or misuse. For us, that meant a few tedious
+reconfigurations of our Vault. This post aims to share learnings that I wish we
+had known from the very beginning, in the form into digestible tips.
 
 These tips are for everyone that needs to work with HashiCorp Vault, whether it
 be as a user, or as an admin (you may still learn something). If you aren't a
@@ -49,16 +49,16 @@ early will minimize the future pain of migration configuration.
 
 Potential solutions for IaC are:
 
-- Terraform/OpenTofu
-- Pulumi
+- [Terraform](https://www.terraform.io/)/[OpenTofu](https://opentofu.org/)
+- [Pulumi](https://www.pulumi.com/)
 
-I would generally recommend going for Terraform/OpenTofu, which integrates
-really well with Vault and is more declarative than Pulumi. Pulumi is a good
-solution where you have lots of dependencies in your system, which need to be
-handled programmatically, like performing API requests.
+For configuring your Vault, I would generally recommend going for
+Terraform/OpenTofu, which takes the declarative approach as opposed to Pulumi.
+Pulumi is a good solution where you have lots of dependencies in a complex
+system, which need to be handled programmatically, like performing API requests.
 
-We started off on our Vault journey by simply documentating how we configured
-our secrets engines, auth methods and policies. So when we had to set up a new
+We started off on our Vault journey by simply documenting how we configured our
+secrets engines, auth methods and policies. So when we had to set up a new
 Vault, that meant going through that documentation and running the commands
 one-by-one. We at some point (painfully) changed to Terraform/OpenTofu, and it
 directly opened up many doors for us:
@@ -66,7 +66,7 @@ directly opened up many doors for us:
 - Writing a testing framework, where we would test the access to Vault paths
   simulating the components in our system, allowing us to check for any
   regressions
-- Reusing the IaC to deploy to configure Vaults in multiple environments
+- Reusing the IaC to configure Vaults in multiple environments
 - Integrate with CI pipelines to automate updates to our Vaults
 
 There's many more advantages. Point is, start with IaC directly, so you don't
@@ -83,10 +83,10 @@ combination of a path and capabilities on that path. Efficient management of
 policies is important in order to keep your Vault lean and scalable.
 
 Let's consider a very basic Vault, which has a
-[KVv2 engine](https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v2),
-`secrets/`, used to store secret recipes under the `recipes/` path. The
-following policy could be the "recipe administrator" policy, allowing the head
-chef to browse the entire secrets engine and update any of the secret recipes:
+[KVv2 engine](https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v2) under
+`secrets/`, used to store secret recipes under the `recipes/` subpath. The
+following policy could be the "head chef" policy, allowing the head chef to
+browse the entire secrets engine and update any of the secret recipes:
 
 ```bash
 vault policy write head-chef - <<EOF
@@ -151,8 +151,11 @@ vault write auth/approle/role/chef-george token_policies=browse-secrets,manage-g
 ```
 
 Deciding on this naming convention for our policies allowed us to scale to many
-more roles in our Vault. We also generally weren't too strict about having
-policies in our Vault that weren't needed or used, if
+more roles in our Vault. One thing to consider though, is paths that may end up
+overlapping between policies that you may assign to a role. This requires being
+aware of how
+[priority matching](https://developer.hashicorp.com/vault/docs/concepts/policies#priority-matching)
+works.
 
 ## Tip 3: KVv2: save raw data, format elsewhere
 
@@ -272,10 +275,10 @@ provide some examples on how to mitigate these risks.
 As an example, let's consider our Vault which is meant to manage recipes. We may
 have an intranet page which allows for sous-chefs to manage their own recipe
 directory under the `recipes/` folder. This would involve sending a request to a
-component, let's call it the `sous-chef-manager`, that would need to run
+component, let's call it the `sous-chef-manager`, that would need to execute
 following commands on the Vault:
 
-```
+```bash
 # create policy for employee
 vault policy write "manage-recipes-$EMPLOYEE_NAME" - <<EOF
 path "secrets/data/recipes/$EMPLOYEE_NAME/*" {
@@ -290,7 +293,7 @@ This would require the `sous-chef-manager` component to have the permissions to
 create both roles and policies for our sous-chefs. Let's setup a role and policy
 for this, which would allow the component to execute the above commands:
 
-```hcl
+```bash
 # create "create-policies", "create-roles" policies
 vault policy write "create-policies" - <<EOF
 path "sys/policy/+" {
@@ -314,7 +317,7 @@ these credentials to log in to Vault, and can now **create new policies, with
 any permissions, and assign those permissions to the `sous-chef-manager` which
 they have control over**:
 
-```
+```bash
 # create malicious "read-all-recipes" policy
 path "secrets/data/*" {
   capabilities = ["read"]
