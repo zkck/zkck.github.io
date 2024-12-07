@@ -15,10 +15,10 @@ palette = "base16-dark"
 
 # Sidebar: about/bio
 [params.about]
-title = "risotto"
+title = "zkck"
 description = "My (Zak Cook) dev blog, for everything from security, to programming, to the best terminal setup."
 # unicode/emoji logo:
-logo = "🍚"
+logo = "🚀"
 # or use an image:
 #logo_image = "images/rice.svg"
 
