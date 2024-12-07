@@ -6,11 +6,11 @@ toc = true
 +++
 
 I work as an IT consultant. With my firm I've been on a client project for over
-2 years now where the use of HashiCorp Vault was prevalent, which has now
+two years now where the use of HashiCorp Vault was prevalent, which has now
 resulted in a thorough and battle-tested configuration of our Vault which we can
 be proud of.
 
-However, over the past 2 years, there have been quite a few learning moments.
+However, over the past two years, there have been quite a few learning moments.
 Vault is a great product with lots of flexibility, but this opens up a lot of
 possibilities for misconfiguration or misuse. For us, that meant a few tedious
 reconfigurations of our Vault. This post aims to share learnings that I wish we
@@ -25,15 +25,15 @@ TL;DR:
 
 1. Configure with an infrastructure-as-code (IaC) tool
 1. Policies describe permissions
-1. Format elsewhere
-1. Careful with the `sys/policies` permission
+1. KVv2: save raw data, format elsewhere
+1. Beware of write permissions on `sys/policies`
 1. Consider templated policies (upcoming)
-1. Make secrets "connection bundles" (upcoming)
+1. KVv2: make secrets "connection bundles" (upcoming)
 1. Utilize `-output-policy` from the CLI (upcoming)
 1. Think about your path structure (upcoming)
 
 This is a two-part series, we'll cover the first four tips here, and the last
-four next month. Stay tuned.
+four in an upcoming post. Stay tuned.
 
 > **Glossary:** I overuse the words _component_ and _system_ a lot. This could
 > refer to microservices, short running jobs, monolith servers, which run all
@@ -151,9 +151,9 @@ vault write auth/approle/role/chef-george token_policies=browse-secrets,manage-g
 ```
 
 Deciding on this naming convention for our policies allowed us to scale to many
-more roles in our Vault. One thing to consider though, is paths that may end up
-overlapping between policies that you may assign to a role. This requires being
-aware of how
+more roles in our Vault. One thing to consider though, is that paths that may
+end up overlapping between policies that you may assign to a role. This requires
+being aware of how
 [priority matching](https://developer.hashicorp.com/vault/docs/concepts/policies#priority-matching)
 works.
 
@@ -206,7 +206,7 @@ kind: ExternalSecret
 metadata:
   name: config
 spec:
-  # ...
+  # ... (reference to SecretStore)
   target:
     template:
       engineVersion: v2
@@ -216,12 +216,8 @@ spec:
           host = "database.example.com"
           username = {{ .username | quote }}
           password = {{ .password | quote }}
-  data:
-  - secretKey: username
-    remoteRef:
-      key: /secrets/databases/my-database
-  - secretKey: password
-    remoteRef:
+  dataFrom:
+  - extract:
       key: /secrets/databases/my-database
 ```
 
@@ -236,12 +232,9 @@ password = "1234"
 ```
 
 The structure of our KVv2 engine is now cleaner, as it is not aware of the
-components that access it, and holds sensible reusable secrets.
-
-Note:
-
-Another option is tweak how the component is configured. Instead of taking
-credentials directly, our component could take a Vault Path instead:
+components that access it, and holds sensible reusable secrets. Another option
+is to tweak how the component is configured. Instead of taking credentials
+directly, our component could take a Vault Path instead:
 
 ```toml
 [database]
@@ -255,13 +248,17 @@ secret. Some applications may want to be agnostic on the type of software
 storing the credentials, in which case a templating solution would be more
 suitable.
 
-## Tip 4: Careful with create permissions on sys/policy
+## Tip 4: Beware of write permissions on `sys/policy`
 
-Vaults used in a complex system sometimes need to support new users being added
-to the Vault: for example adding a new role/user which has access to a
-subdirectory of a KVv2 secrets engine. To automate this, companies may resort to
-building some management component which automates the creation of a role/user
-and policies attached to it.
+> Understanding this tip is a bit more involved, but please bear with me. It is
+> arguably the most important tip in this series, especially in environments
+> where security is critical.
+
+Vaults used in a complex system sometimes need to support new users being
+asynchronously added to the Vault: for example adding a new role/user which has
+access to a subdirectory of a KVv2 secrets engine. To automate this, companies
+may resort to building some management component which automates the creation of
+a role/user and policies attached to it.
 
 The
 [`sys/policy`](https://developer.hashicorp.com/vault/api-docs/system/policy#create-update-policy)
@@ -269,14 +266,14 @@ The
 [`sys/policies/acl`](https://developer.hashicorp.com/vault/api-docs/system/policies#create-update-acl-policy))
 path is used to grant permissions on managing policies in Vault, and is
 necessary to create policies on the fly. We will see in this chapter how
-granting `create` permissions on `sys/policy` can lead to security risks, and
-provide some examples on how to mitigate these risks.
+granting write permissions on `sys/policy` **can lead to severe security
+risks**, and provide some examples on how to mitigate these risks.
 
-As an example, let's consider our Vault which is meant to manage recipes. We may
-have an intranet page which allows for sous-chefs to manage their own recipe
-directory under the `recipes/` folder. This would involve sending a request to a
-component, let's call it the `sous-chef-manager`, that would need to execute
-following commands on the Vault:
+As an example, let's consider our Vault which is meant to manage recipes. Our
+company wants to support employees requesting their own subdirectory in our
+`secrets/` KVv2 engine. This would involve the employees sending an API request
+to a component, let's call it the `employee-manager`, that would need to execute
+following commands on the Vault upon receiving one of these requests:
 
 ```bash
 # create policy for employee
@@ -289,9 +286,10 @@ EOF
 vault write auth/approle/role/$EMPLOYEE_NAME token_policies="manage-recipes-$EMPLOYEE_NAME"
 ```
 
-This would require the `sous-chef-manager` component to have the permissions to
-create both roles and policies for our sous-chefs. Let's setup a role and policy
-for this, which would allow the component to execute the above commands:
+This would require the `employee-manager` component to have the necessary
+permissions to create both roles and policies for our employees. Let's setup a
+role and policy for this, which would allow the component to execute the above
+commands:
 
 ```bash
 # create "create-policies", "create-roles" policies
@@ -306,16 +304,16 @@ path "auth/approle/role/+" {
 }
 EOF
 # attach policies to role
-vault write auth/approle/role/sous-chef-manager token_policies=create-policies,create-roles
+vault write auth/approle/role/employee-manager token_policies=create-policies,create-roles
 ```
 
-The above policies are dangerous to provide, especially in conjunction.
+The above policies are **extremely dangerous** to provide, especially in
+conjunction.
 
-Imagine our `sous-chef-manager` component was insecure, an attacker can SSH
-inside it, and read the role ID and secret ID on disk. The attacker then uses
-these credentials to log in to Vault, and can now **create new policies, with
-any permissions, and assign those permissions to the `sous-chef-manager` which
-they have control over**:
+Imagine our `employee-manager` component was insecure, and is compromised by an
+attacker. The attacker then uses the component's credentials to log in to Vault,
+and can now **create new policies, with any permissions, and assign those
+permissions to the `employee-manager` which they have control over**:
 
 ```bash
 # create malicious "read-all-recipes" policy
@@ -323,22 +321,28 @@ path "secrets/data/*" {
   capabilities = ["read"]
 }
 # update the policies attached to the role
-vault write auth/approle/role/sous-chef-manager token_policies=create-policies,create-roles,read-all-recipes
+vault write auth/approle/role/employee-manager token_policies=create-policies,create-roles,read-all-recipes
+
+# after logging in again, the attacker can execute
+vault read secrets/data/recipes/gordon/super-secret-meatballs-recipe
 ```
 
-Which means that technically, this component can be considered as **admin** on
-the Vault, as it can create policies for absolutely anything and assign it to
-itself. To mitigate this, there are the following solutions:
+This component can now technically be considered as **admin** on the Vault, as
+it can create policies for absolutely anything and assign it to itself. To
+mitigate this, there are the following solutions:
 
 1. Avoid granting permissions on `sys/policies` altogether and consider **using
    templated policies**. This is often the cleanest solution, and has a big
    advantage of reducing the amount of configuration.
 1. Grant permissions on a **subfolder of sys/policies**. This subfolder must be
-   disjoint from the policies granted to `sous-chef-manager`, and
-   `sous-chef-manager` should not be able to `update` its own role.
+   disjoint from the policies granted to `employee-manager`, and
+   `employee-manager` should not be able to `update` its own role.
 1. Grant only `create` permissions on anything under `sys/policies`, and
-   `sous-chef-manager` should not be able to `update` its own role.
+   `employee-manager` should not be able to `update` its own role.
 
 There may be more mitigation options, but the point of this chapter is to
 consider the event of a breach and be aware of the **effective permissions**
 that you may be giving to your system components.
+
+That's all the tips for now. Thanks for reading, I hope you learned something,
+and stay tuned for the second half.
