@@ -3,15 +3,18 @@ title = "Two years in the Vault: 4 best practices"
 date = 2024-12-06T19:35:04+01:00
 draft = false
 toc = true
+tags = ["hashicorp vault", "security", "platform engineering", "devops", "secrets management"]
+description = "Sharing learnings about the use [HashiCorp Vault](https://www.vaultproject.io/) for managing secrets in a platform engineering context."
 +++
 
 I work as an IT consultant. Over the past two years, we've been working with our
 client on a
 [platform engineering](https://en.wikipedia.org/wiki/Platform_engineering)
-project, where the use of [HashiCorp Vault](https://www.vaultproject.io/) was
-prevalent. Our Vault has enabled us to manage hundreds of secrets, increasing
-the security of our developer platform, and has resulted in a thorough and
-battle-tested configuration of our Vault which we can be proud of.
+project, where the use of [HashiCorp Vault](https://www.vaultproject.io/) for
+[secrets management](https://www.redhat.com/en/topics/devops/what-is-secrets-management)
+was prevalent. Our Vault has enabled us to manage hundreds of credentials,
+increasing the security of our developer platform, and has resulted in a
+thorough and battle-tested configuration of our Vault which we can be proud of.
 
 However, over the past two years, there have been quite a few learning moments.
 Vault is a great product with lots of flexibility, but this opens up a lot of
