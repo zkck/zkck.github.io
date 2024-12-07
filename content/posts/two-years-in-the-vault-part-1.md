@@ -26,7 +26,7 @@ TL;DR:
 1. Configure with an infrastructure-as-code (IaC) tool
 1. Policies describe permissions
 1. KVv2: save raw data, format elsewhere
-1. Beware of write permissions on `sys/policies`
+1. Beware of write permissions on `sys/policy`
 1. Consider templated policies (upcoming)
 1. KVv2: make secrets "connection bundles" (upcoming)
 1. Utilize `-output-policy` from the CLI (upcoming)
@@ -316,14 +316,16 @@ and can now **create new policies, with any permissions, and assign those
 permissions to the `employee-manager` which they have control over**:
 
 ```bash
-# create malicious "read-all-recipes" policy
+# create malicious policy
+vault policy write "read-all-recipes" - <<EOF
 path "secrets/data/*" {
   capabilities = ["read"]
 }
-# update the policies attached to the role
+EOF
+# update the compromised role with malicious policy
 vault write auth/approle/role/employee-manager token_policies=create-policies,create-roles,read-all-recipes
 
-# after logging in again, the attacker can execute
+# after logging in again, the attacker could execute:
 vault read secrets/data/recipes/gordon/super-secret-meatballs-recipe
 ```
 
@@ -331,13 +333,13 @@ This component can now technically be considered as **admin** on the Vault, as
 it can create policies for absolutely anything and assign it to itself. To
 mitigate this, there are the following solutions:
 
-1. Avoid granting permissions on `sys/policies` altogether and consider **using
+1. Avoid granting permissions on `sys/policy` altogether and consider **using
    templated policies**. This is often the cleanest solution, and has a big
    advantage of reducing the amount of configuration.
-1. Grant permissions on a **subfolder of sys/policies**. This subfolder must be
+1. Grant permissions on a **subfolder of sys/policy**. This subfolder must be
    disjoint from the policies granted to `employee-manager`, and
    `employee-manager` should not be able to `update` its own role.
-1. Grant only `create` permissions on anything under `sys/policies`, and
+1. Grant only `create` permissions on anything under `sys/policy`, and
    `employee-manager` should not be able to `update` its own role.
 
 There may be more mitigation options, but the point of this chapter is to
