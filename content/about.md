@@ -13,4 +13,5 @@ constantly update my
 over at my [dotfiles](https://github.com/zkck/dotfiles) repo, and am now trying
 to write about my computer science adventures in this blog.
 
-Reach out to me anytime on [LinkedIn](https://www.linkedin.com/in/zak-cook/).
+Reach out to me anytime on [LinkedIn](https://www.linkedin.com/in/zak-cook/), or
+follow my [GitHub](https://github.com/zkck).
