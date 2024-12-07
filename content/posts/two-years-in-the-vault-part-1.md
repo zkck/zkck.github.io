@@ -32,8 +32,8 @@ TL;DR:
 1. Utilize `-output-policy` from the CLI (upcoming)
 1. Think about your path structure (upcoming)
 
-This is a two-part series, we'll cover the first four tips here, and the last
-four in an upcoming post. Stay tuned.
+This is a two-part series, we'll cover the first four tips here, and the
+remaining four in an upcoming post. Stay tuned.
 
 > **Glossary:** I overuse the words _component_ and _system_ a lot. This could
 > refer to microservices, short running jobs, monolith servers, which run all
@@ -44,8 +44,8 @@ four in an upcoming post. Stay tuned.
 
 When first starting to integrate a Vault into a large system, one naturally does
 explorative work locally with the Vault CLI. This is all good, but concretizing
-that configuration into infrastructure-as-code (IaC) is essential, and doing it
-early will minimize the future pain of migration configuration.
+that configuration into infrastructure-as-code (IaC) is essential, and by doing
+it early you'd avoid the pain of migrating your configuration down the road.
 
 Potential solutions for IaC are:
 
@@ -63,7 +63,7 @@ Vault, that meant going through that documentation and running the commands
 one-by-one. We at some point (painfully) changed to Terraform/OpenTofu, and it
 directly opened up many doors for us:
 
-- Writing a testing framework, where we would test the access to Vault paths
+- Writing a testing framework, where we would test the access to Vault paths by
   simulating the components in our system, allowing us to check for any
   regressions
 - Reusing the IaC to configure Vaults in multiple environments
@@ -151,9 +151,9 @@ vault write auth/approle/role/chef-george token_policies=browse-secrets,manage-g
 ```
 
 Deciding on this naming convention for our policies allowed us to scale to many
-more roles in our Vault. One thing to consider though, is that paths that may
-end up overlapping between policies that you may assign to a role. This requires
-being aware of how
+more roles in our Vault. One thing to consider though, is that paths may end up
+overlapping among the policies assigned to a role. This requires being aware of
+how Vault's
 [priority matching](https://developer.hashicorp.com/vault/docs/concepts/policies#priority-matching)
 works.
 
@@ -244,7 +244,7 @@ vault_path = "secrets/databases/my-database"
 
 This however means a dependency on HashiCorp Vault in the code of the
 application itself, as the code now uses the Vault API in order to retrieve the
-secret. Some applications may want to be agnostic on the type of software
+secret. Some applications may want to be agnostic to the type of software
 storing the credentials, in which case a templating solution would be more
 suitable.
 
@@ -288,8 +288,7 @@ vault write auth/approle/role/$EMPLOYEE_NAME token_policies="manage-recipes-$EMP
 
 This would require the `employee-manager` component to have the necessary
 permissions to create both roles and policies for our employees. Let's setup a
-role and policy for this, which would allow the component to execute the above
-commands:
+role and policy to allow the component to execute the above commands:
 
 ```bash
 # create "create-policies", "create-roles" policies
@@ -307,36 +306,37 @@ EOF
 vault write auth/approle/role/employee-manager token_policies=create-policies,create-roles
 ```
 
-The above policies are **extremely dangerous** to provide, especially in
-conjunction.
+The above permissions are **extremely dangerous** to provide to any component or
+user of Vault, especially in conjunction.
 
 Imagine our `employee-manager` component was insecure, and is compromised by an
-attacker. The attacker then uses the component's credentials to log in to Vault,
-and can now **create new policies, with any permissions, and assign those
+attacker. The attacker then uses the component's credentials to log in to Vault.
+They can now **create new policies, with any permissions, and assign those
 permissions to the `employee-manager` which they have control over**:
 
 ```bash
 # create malicious policy
-vault policy write "read-all-recipes" - <<EOF
+vault policy write "read-secrets" - <<EOF
 path "secrets/data/*" {
   capabilities = ["read"]
 }
 EOF
 # update the compromised role with malicious policy
-vault write auth/approle/role/employee-manager token_policies=create-policies,create-roles,read-all-recipes
+vault write auth/approle/role/employee-manager token_policies=create-policies,create-roles,read-secrets
 
 # after logging in again, the attacker could execute:
 vault read secrets/data/recipes/gordon/super-secret-meatballs-recipe
 ```
 
-This component can now technically be considered as **admin** on the Vault, as
-it can create policies for absolutely anything and assign it to itself. To
-mitigate this, there are the following solutions:
+So the component must technically be considered as **admin** on the Vault, as it
+can create policies for absolutely anything and assign it to itself. To mitigate
+this security risk, there are the following solutions:
 
 1. Avoid granting permissions on `sys/policy` altogether and consider **using
-   templated policies**. This is often the cleanest solution, and has a big
-   advantage of reducing the amount of configuration.
-1. Grant permissions on a **subfolder of sys/policy**. This subfolder must be
+   [templated policies](https://developer.hashicorp.com/vault/docs/concepts/policies#templated-policies)**.
+   This is often the cleanest solution, and has a big advantage of reducing the
+   amount of configuration.
+1. Grant permissions on a **subfolder of `sys/policy`**. This subfolder must be
    disjoint from the policies granted to `employee-manager`, and
    `employee-manager` should not be able to `update` its own role.
 1. Grant only `create` permissions on anything under `sys/policy`, and
@@ -347,4 +347,4 @@ consider the event of a breach and be aware of the **effective permissions**
 that you may be giving to your system components.
 
 That's all the tips for now. Thanks for reading, I hope you learned something,
-and stay tuned for the second half.
+and stay tuned for the second half and other posts to come.
