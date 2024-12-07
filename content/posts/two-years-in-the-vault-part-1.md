@@ -1,6 +1,6 @@
 +++
 title = "Two years in the Vault: 4 best practices"
-date = 2024-03-22T19:35:04+01:00
+date = 2024-12-07T19:35:04+01:00
 draft = false
 toc = true
 +++
@@ -55,7 +55,7 @@ Potential solutions for IaC are:
 For configuring your Vault, I would generally recommend going for
 Terraform/OpenTofu, which takes the declarative approach as opposed to Pulumi.
 Pulumi is a good solution where you have lots of dependencies in a complex
-system, which need to be handled programmatically, like performing API requests.
+system, which need to be handled programmatically.
 
 We started off on our Vault journey by simply documenting how we configured our
 secrets engines, auth methods and policies. So when we had to set up a new
@@ -234,7 +234,7 @@ password = "1234"
 The structure of our KVv2 engine is now cleaner, as it is not aware of the
 components that access it, and holds sensible reusable secrets. Another option
 is to tweak how the component is configured. Instead of taking credentials
-directly, our component could take a Vault Path instead:
+directly, our component could take a Vault path instead:
 
 ```toml
 [database]
