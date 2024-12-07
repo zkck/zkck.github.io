@@ -16,7 +16,7 @@ palette = "base16-dark"
 # Sidebar: about/bio
 [params.about]
 title = "zkck"
-description = "My (Zak Cook) dev blog, for everything from security, to programming, to the best terminal setup."
+description = "My (Zak Cook) dev blog, for everything from security, to programming, to a superior terminal setup."
 # unicode/emoji logo:
 logo = "🚀"
 # or use an image:
