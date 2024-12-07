@@ -1,6 +1,6 @@
 +++
 title = "Two years in the Vault: 4 best practices"
-date = 2024-12-07T19:35:04+01:00
+date = 2024-12-06T19:35:04+01:00
 draft = false
 toc = true
 +++
