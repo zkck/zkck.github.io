@@ -1,6 +1,6 @@
-baseURL = 'https://example.org/'
+baseURL = 'https://zkck.github.io/'
 languageCode = 'en-us'
-title = "zak's silly thoughts"
+title = "zak's hacks"
 
 theme = 'risotto'
 
@@ -16,7 +16,7 @@ palette = "base16-dark"
 # Sidebar: about/bio
 [params.about]
 title = "risotto"
-description = "A [hugo](https://gohugo.io) theme inspired by terminal ricing."
+description = "My (Zak Cook) dev blog, for everything from security, to programming, to the best terminal setup."
 # unicode/emoji logo:
 logo = "🍚"
 # or use an image:
@@ -30,17 +30,17 @@ logo = "🍚"
 [[params.socialLinks]]
 icon = "fa-brands fa-github"
 title = "GitHub"
-url = "https://github.com/joeroe/risotto"
+url = "https://github.com/zkck"
 
 [[params.socialLinks]]
 icon = "fa-solid fa-envelope"
 title = "Email"
-url = "mailto:example@example.com"
+url = "mailto:zakcook4@gmail.com"
 
 [[params.socialLinks]]
-icon = "ai ai-orcid"
-title = "ORCID"
-url = "https://orcid.org/0000-0001-2345-6789"
+icon = "fa-brands fa-linkedin"
+title = "LinkedIn"
+url = "https://linkedin.com/in/zak-cook"
 
 [menu]
 
