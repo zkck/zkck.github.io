@@ -1,5 +1,5 @@
 +++
-title = "Two years in the Vault: 4 best practices"
+title = "Two Years in the Vault: 4 Best Practices 🔒"
 date = 2024-12-06T19:35:04+01:00
 draft = false
 toc = true
@@ -38,7 +38,7 @@ TL;DR:
 1. Utilize `-output-policy` from the CLI (upcoming)
 1. Think about your path structure (upcoming)
 
-This is a two-part series, we'll cover the first four tips here, and the
+This is a two-part series, I'll cover the first four tips here, and the
 remaining four in an upcoming post. Stay tuned.
 
 > **Glossary:** I overuse the words _component_ and _system_ a lot. This could
