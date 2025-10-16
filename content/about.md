@@ -1,7 +1,6 @@
 Hey, I'm Zak.
 
-I'm a software engineer based in Switzerland, currently working as an IT
-consultant at [ipt](https://ipt.ch/en/). I've had professional experience in
+I'm a software engineer based in Switzerland, currently working at [DeepJudge](https://www.deepjudge.ai/). I've had professional experience in
 cybersecurity, software engineering, and cloud-native infrastructure. I'm
 passionate about so many topics in computer science, and love learning a little
 bit more everyday.
