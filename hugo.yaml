@@ -1,0 +1,35 @@
+baseURL: 'https://zkck.github.io'
+languageCode: 'en-us'
+title: "Zak's Hacks"
+theme: "PaperMod"
+
+params:
+  footer:
+    text: |
+      This work is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+    hideCopyright: true
+  homeInfoParams:
+    Title: Hello, friend
+    Content: |
+      I'm **Zak**, welcome to my blog. I'm a software engineer based in Switzerland,
+      currently working at [DeepJudge](https://www.deepjudge.ai/). I've had professional experience in
+      cybersecurity, software engineering, and cloud-native infrastructure. I'm
+      passionate about so many topics in computer science, and love learning a little
+      bit more everyday.
+  ShowCodeCopyButtons: true
+  socialIcons: # optional
+    - name: "linkedin"
+      url: "https://linkedin.com/in/zak-cook"
+    - name: "github"
+      url: "https://github.com/zkck"
+    - name: "bluesky"
+      url: "https://bsky.app/profile/zkck.bsky.social"
+menu:
+  main:
+    - identifier: tags
+      name: tags
+      url: /tags/
+    - identifier: about
+      name: about
+      url: /about/
+
