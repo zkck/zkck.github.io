@@ -16,7 +16,9 @@ params:
       cybersecurity, software engineering, and cloud-native infrastructure. I'm
       passionate about so many topics in computer science, and love learning a little
       bit more everyday.
-  ShowCodeCopyButtons: true
+  defaultTheme: dark
+  showCodeCopyButtons: true
+  showReadingTime: true
   socialIcons: # optional
     - name: "linkedin"
       url: "https://linkedin.com/in/zak-cook"
@@ -32,4 +34,3 @@ menu:
     - identifier: about
       name: about
       url: /about/
-
