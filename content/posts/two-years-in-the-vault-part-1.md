@@ -2,11 +2,13 @@
 title = "Two Years in the Vault: 4 Best Practices 🔒"
 date = 2024-12-06T19:35:04+01:00
 draft = false
-ShowToc = true
-TocOpen = true
+showToc = true
+tocOpen = true
 author = ["Zak Cook"]
 tags = ["hashicorp vault", "security", "platform engineering", "devops", "secrets management"]
 summary = "Sharing learnings about the use of [HashiCorp Vault](https://www.vaultproject.io/) for managing secrets in a platform engineering context."
+[cover]
+image = "/assets/vault.jpg"
 +++
 
 I work as an IT consultant. Over the past two years, we've been working with our
