@@ -1,3 +1,7 @@
 body {
-	font-family: "IBM Plex Mono"
+    font-family: "Roboto Slab";
+}
+
+code, pre {
+    font-family: "Roboto Mono";
 }
