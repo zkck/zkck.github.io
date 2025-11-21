@@ -36,3 +36,6 @@ menu:
     - identifier: about
       name: about
       url: /about/
+services:
+  googleAnalytics:
+    id: G-T6SE9B4V8H
